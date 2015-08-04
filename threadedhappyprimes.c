@@ -1,11 +1,10 @@
 //
-//  prochappyprimes.c
+//  threadedhappyprimes.c
 //  CS344_proj4_shawec
 //
 //  Created by Cierra Shawe on 8/1/15.
 //  Copyright (c) 2015 Cierra Shawe. All rights reserved.
 //
-
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -77,7 +76,6 @@ int doMath(sieved *primes, int i){
 
     return 0;
 }
-
 void happy(sieved *primes, happies *hap){
 
     int hpc = 0; //happy prime count
@@ -98,9 +96,8 @@ void happy(sieved *primes, happies *hap){
         }
 
     }
-    
-}
 
+}
 unsigned int *sieve(sieved *primes){
 
     unsigned int k = 0;
