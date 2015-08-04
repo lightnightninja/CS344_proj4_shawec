@@ -1,0 +1,213 @@
+%% LyX 2.1.3 created this file.  For more info, see http://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
+\documentclass[english]{article}
+\usepackage[T1]{fontenc}
+\usepackage[latin9]{inputenc}
+\usepackage{geometry}
+\geometry{verbose,tmargin=1in,bmargin=1in,lmargin=1in,rmargin=1in}
+\usepackage{setspace}
+\usepackage{babel}
+\begin{document}
+\begin{spacing}{0.5}
+
+\title{Assignment 4}
+\end{spacing}
+
+\begin{spacing}{0}
+
+\author{Cierra Shawe}
+\end{spacing}
+
+\begin{spacing}{0}
+
+\date{CS344 - Summer 2015}
+\end{spacing}
+\maketitle
+\begin{enumerate}
+\item \noindent A design for your system, including where your implementation
+differed from this design if applicable. 
+
+
+First of all, everything went poof on Saturday night when trying to
+upload to git, and after that I kind of just gave up out of frustration,
+which wasn't the best idea, but instead I just started reading about
+sockets and preparing for assignment 5, because sometimes things happen
+and life moves on. I'm not the first person to lose code by stupid
+mistakes, and by no means will be the last.
+
+
+Anyway, onto the design.
+
+
+The first task is generating the list of primes, which can be done
+using the sieve. The bitmap will be itterated through by using a constant
+that is equal to the size of an unsigned int, take into consideration
+where the boundaries are, and then from there just itterate though
+like an array, just using math (pos {*} SIZE\_COST). That way, in
+order to do this in parallel, each thread or proccess can take a chunk
+of memory, after the first pass has been made on the first chunk of
+memory. This gives the other proccesses or threads numbers to work
+with, and help eliminate any non-primes. After the threads reads through
+and eliminates all numbers in the first block, they can keep reading
+on the other blocks. Since this is being done in parallel, a later
+on thread will have to check through more primes, theoretically taking
+more time. However, a mutex can be used for the code executing the
+next block, so that any thread running on a part further in the program
+has to make sure the previous block is fully accounted for, that way
+it doesn't skip numbers. So if chunk one ran the first 1024 numbers,
+all of the threads could run through that, but then only thread two
+would have to finish before thread three can check it's numbers, then
+all of the threads can run up to chunk 2, and once thread three finishes
+it's part, then the other threads can use all of those, up until the
+sqrt of MAX\_UINT, where at that point all of the threads are allowed
+to work on their respective chunks of memory. The chunks will be an
+arbituary number, based on the number of threads (aka divided up into
+equal chunks). Then in the end, the result will be a map of either
+a prime number, or 0.
+
+
+To find a happy number, every number will end up producing either
+a 0, 1, 4, 16,37, 43, 58, 89, 20, or 145. What I find interesting,
+is that a sad number will end up looping through the numbers greater
+than one indefinitely. If it ends up being anything but one, it can
+be marked as a sad number, so it'll get marked as a 0 within the original
+bitmap. Once everything is done running, it'll go through and count
+how many happy numbers there are, then go through and create a second
+bitmap to store everything in. Then, after it's done, move it over.
+This way, the order is maintained, and all of the happy numbers will
+be accounted for. 
+
+
+Overall, my submission just includes something that can return all
+of the happy numbers under a certain number. It's not that special,
+it was literaly was just how far I got before giving up the second
+time around. 
+
+\item Your experimental results for the runtime of your implementations
+with varying numbers of concurrent units.
+
+
+N/A -> Because I lost my code, and there is no way I'll be able to
+get everything working again in time, I'm unable to actually graph
+this, however I'll just go over there results from before everything
+went poof. 
+
+
+What I noticed, that the threaded version was much faster than a single
+process, and I would assume it would be faseter than the multi-proccess
+version because it doesn't have to recreate the full program, it's
+just the minimal ammount of instructions for the scheduler to handle
+things. On my machine, which is a quad-core (never tested on osclass),
+the threaded version was considerably faster up to about 16 threads,
+then it felt like it didn't really make a difference. Given that I
+was just timing this by how long I had to wait by glancing over at
+my clock, it's not the best gauge, however the difference between
+1 and 16 was huge, and then when I randomly tested 512, it ran about
+the same as the 16 threads. 
+
+\item \noindent A work log, detailing what you did when \textendash{} this
+can fairly easily be created if you are using some form of revision
+control. 
+
+\begin{verbatim}
+Tue 7/28 Theoretical Design, reading all about threads, and some on shared memory
+Wed 7/29 Reading on shared memory, played some with example code, more design
+(No internet for my computer from here, yay coding in the woods via car power!)
+Thu 7/30 Got code to correctly find the happy numbers
+Fri 7/31 Using mmap to store the giant array and sieve it out, then calc happy primes
+Sat 8/1  Using threads to sieve and calc 
+(Back home with internet (late saturday night))
+commit 84017c lightnightninja <mywho09@gmail.com> 
+Date: Sat Aug 1 19:26:25 2015 -0700
+	I lost all of my code trying to create the last repository -.- 
+	Everything.
+
+commit 4009e2 lightnightninja <mywho09@gmail.com> 
+Date: Sat Aug 1 20:29:16 2015 -0700
+	So... Back to simple finding primes and happy numbers. 
+	1/4 recovered(not even)... Woo... So Done... 
+
+Sun 8/2 Too frustrated to continue, write a4 off as low grade.
+		Started reading more about sockets. 
+Mon 8/3 Finishing this writeup, submitting code, 
+		moving on to a5 and grading.
+\end{verbatim}
+\selectlanguage{english}%
+\item \noindent Any challenges you overcame in completing this assignment. 
+
+
+\noindent I was having a hard time getting my happy number code to
+work properly, there were always just little bugs within the code.
+I kept running out of ram on my machine, which was always amusing.
+So in order to combat that, I would just run smaller numbers, so that
+the chance of having the contiguous space was higher. After that I
+struggled with itterating through the memory map, but like in cs271,
+we learned that a variable can be used in order to create a constant
+offset to itterate by, which ended up making it easier, since it became
+more like an array access.
+
+
+\noindent Another challenge was being behind from the last assignment,
+however having taken the time to get it working taught me so much
+more about proccess creation, so I don't really regret that. On top
+of that, it's just been stressful because the entire two weeks of
+the assignment was choosing school work or spending time with people
+I won't get to see for a really long time. That on top of still coming
+off the the super messed up meds, and not being able to get an appointment
+until today for something different has just left everything else
+a mess. Still not an excuse, just what happened, and it's exactly
+why my plan is to simply make up for it on the next assignment now
+that everyone is gone, back on my much more stable meds, and the end
+is drawing near. Can only move forward from here!
+
+\item Answers to the following questions: 
+
+\begin{enumerate}
+\item What do you think the main point of this assignment is?
+
+
+This assignment was supposed to teach us about the advantages of threading
+and using shared memory, while also showing what can happen when things
+aren't properly maintained, i.e things fight for the same memory space,
+race conditions, etc. It also shows how threading, or even multiple
+processes can be considerably faster than not doing things in paralell.
+An interesting graph I saw showed the preformance gains and number
+of processes, and when 95\% of the code is done in paralell using
+threading, there can be almost a 20x reduction of time. Threading
+also helps with utilizing the resources our computers have these days,
+as we might as well be able to use all of the power that we have.
+Mmap makes it so that there are simply fewer system calls, which reduces
+the amount of time required to run, since file I/O is expensive (as
+we learned in a2 I believe). 
+
+\item How did you ensure your solution was correct?
+
+
+To begin with I was just using arrays to make sure that the code was
+able to find happy numbers properly. Then from there it was just outputting
+the results, making it so that I could just read them off. I only
+would compare with a list of happy primes from:
+
+
+https://en.wikipedia.org/wiki/Happy\_number\#Happy\_primes then figured
+it was good enough, and I had planned on doing more extensive checking
+today. 
+
+\item What did you learn?
+
+
+ALWAYS CREATE YOUR GIT REPOSITORY BEFORE DOING ANYTHING -\_- ALWAYS.
+Otherweise very bad things will happen if you don't do it correctly.
+On top of that, I gained a better understanding how threading can
+be used in order to speed up programs that are very computation heavy,
+and that they can all share memory in order to make it more efficient.
+I also learned that arrays can take up system memory very quickly,
+and because that space might not be enough to hold the entire array,
+things can go crash. It was entertaining watching my code take up
+all 16 gigs of ram (some of this was probably virtual, no idea how
+OSX handles it). Allocating space for every unsigned int takes up
+a lot of memory space. 4{*}4294967296 is a lot of bytes (16GB). And
+I always learning about new things with numbers. \end{enumerate}
+\end{enumerate}
+
+\end{document}
